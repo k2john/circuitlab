@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Circuit Lab: ESP32 and Arduino sensor lessons</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#e8edf0;--card:#f6f9fa;--ink:#14232b;--mute:#566a74;--line:#c5d0d6;--code:#0f1c23;--codeink:#d6e6ee;--esp:#b0276f;--uno:#2850c8;--acc:var(--esp);--ok:#1c8a4d;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#101a20;--card:#17262e;--ink:#e3eef3;--mute:#8fa5b0;--line:#2b3f4a;--code:#0a1217;--esp:#ff6fb5;--uno:#7a9bff;--ok:#4fd388;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#101a20;--card:#17262e;--ink:#e3eef3;--mute:#8fa5b0;--line:#2b3f4a;--code:#0a1217;--esp:#ff6fb5;--uno:#7a9bff;--ok:#4fd388;color-scheme:dark}
+*,*:before,*:after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 "Bricolage Grotesque",system-ui,-apple-system,"Segoe UI",sans-serif}
+body[data-b="uno"]{--acc:var(--uno)}
+header{display:flex;flex-wrap:wrap;gap:12px 24px;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:2px solid var(--ink);background:var(--card)}
+h1{margin:0;font-size:1.35rem;letter-spacing:-.01em}
+h1 small{font-weight:500;color:var(--mute);font-size:.85rem;margin-left:8px}
+.seg{display:inline-flex;border:2px solid var(--ink);border-radius:999px;overflow:hidden}
+.seg button{font:inherit;font-weight:700;border:0;background:transparent;color:var(--ink);padding:6px 16px;cursor:pointer}
+.seg button[aria-pressed=true]{background:var(--acc);color:#fff}
+.prog{font-weight:500;color:var(--mute)}
+.wrap{display:grid;grid-template-columns:260px 1fr;gap:20px;max-width:1100px;margin:0 auto;padding:20px}
+@media(max-width:760px){.wrap{grid-template-columns:1fr;padding:12px}}
+nav{align-self:start;position:sticky;top:12px}
+@media(max-width:760px){nav{position:static}}
+nav input{width:100%;font:inherit;padding:8px 12px;border:2px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink);margin-bottom:10px}
+.cat{font-weight:700;color:var(--mute);margin:14px 0 4px;font-size:.9rem}
+nav ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:2px}
+@media(max-width:760px){nav ul{flex-direction:row;flex-wrap:wrap;gap:6px}}
+nav li button{font:inherit;width:100%;text-align:left;border:0;background:transparent;color:var(--ink);padding:7px 10px;border-radius:8px;cursor:pointer;display:flex;justify-content:space-between;gap:8px}
+@media(max-width:760px){nav li button{border:1px solid var(--line);width:auto}}
+nav li button:hover{background:var(--card)}
+nav li button[aria-current=true]{background:var(--ink);color:var(--bg)}
+nav li button.off{opacity:.45}
+nav li button .d{color:var(--ok);font-weight:700}
+button:focus-visible,input:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+main{min-width:0}
+.panel{background:var(--card);border:2px solid var(--ink);border-radius:14px;padding:18px;margin-bottom:16px}
+.panel h2{margin:0 0 4px;font-size:1.1rem}
+.top h2{font-size:1.9rem;letter-spacing:-.02em;margin-bottom:6px}
+.tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.tag{border:1.5px solid var(--acc);color:var(--acc);border-radius:999px;padding:1px 10px;font-size:.85rem;font-weight:500}
+.warn{border-left:5px solid var(--acc);background:var(--bg);padding:8px 12px;margin-top:12px;border-radius:0 8px 8px 0}
+.na{border-color:var(--mute);color:var(--mute)}
+svg{width:100%;height:auto;display:block;max-height:340px}
+svg text{font:500 13px "IBM Plex Mono",ui-monospace,monospace;fill:var(--ink)}
+.live{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:760px){.live{grid-template-columns:1fr}}
+.big{font-size:2.6rem;font-weight:700;line-height:1;letter-spacing:-.03em}
+.big span{font-size:1rem;font-weight:500;color:var(--mute);margin-left:6px}
+.bar{height:12px;border-radius:6px;background:var(--bg);border:1.5px solid var(--line);margin:12px 0;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--acc);width:0}
+input[type=range]{width:100%;accent-color:var(--acc)}
+.mon{background:var(--code);color:var(--codeink);border-radius:10px;padding:10px 12px;font:13px/1.5 "IBM Plex Mono",ui-monospace,monospace;min-height:170px;margin:0;overflow:auto;white-space:pre-wrap}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.btn{font:inherit;font-weight:700;border:2px solid var(--ink);background:var(--card);color:var(--ink);border-radius:8px;padding:6px 14px;cursor:pointer}
+.btn.p{background:var(--acc);border-color:var(--acc);color:#fff}
+pre.code{background:var(--code);color:var(--codeink);border-radius:10px;padding:14px;margin:0;font:13px/1.55 "IBM Plex Mono",ui-monospace,monospace;overflow-x:auto}
+.lbl{color:var(--mute);font-size:.9rem}
+@media(prefers-reduced-motion:no-preference){.bar i{transition:width .2s}}
+</style>
+</head>
+<body data-b="esp">
+<header>
+<h1>Circuit Lab<small>sensors, wiring and code for ESP32 and Uno</small></h1>
+<div class="seg" role="group" aria-label="Board"><button id="be" aria-pressed="true">ESP32</button><button id="bu" aria-pressed="false">Arduino Uno</button></div>
+<div class="prog" id="prog"></div>
+</header>
+<div class="wrap">
+<nav><input id="q" type="search" placeholder="Search sensors" aria-label="Search sensors"><div id="list"></div></nav>
+<main id="main"></main>
+</div>
+<script>
+var S=[
+{id:'led',c:'Output',n:'LED blink',d:'The hello world of hardware. A GPIO pin switches an LED on and off; with PWM you also control brightness.',sig:{esp:[['OUT',2]],uno:[['OUT',13]]},sim:{n:'Brightness',u:'%',min:0,max:100,v:60,f:function(v){return 'duty '+v+'%'}},tip:'Always put a 220 ohm resistor in series with the LED.',code:'const int LED = {S0};\nvoid setup() { pinMode(LED, OUTPUT); }\nvoid loop() {\n  digitalWrite(LED, HIGH); delay(500);\n  digitalWrite(LED, LOW);  delay(500);\n}'},
+{id:'btn',c:'Input',n:'Push button',d:'Read a switch with the internal pull-up resistor, so you need no extra parts.',sig:{esp:[['IN',4]],uno:[['IN',2]]},sim:{n:'Button',u:'',min:0,max:1,v:0,f:function(v){return v?'PRESSED':'released'}},tip:'With INPUT_PULLUP the pin reads LOW when the button is pressed.',code:'const int BTN = {S0};\nvoid setup() { Serial.begin(115200); pinMode(BTN, INPUT_PULLUP); }\nvoid loop() {\n  Serial.println(digitalRead(BTN) == LOW ? "pressed" : "released");\n  delay(200);\n}'},
+{id:'pot',c:'Analog',n:'Potentiometer',d:'A knob that outputs a voltage. Your first analog input, and the base for dimmers and volume controls.',sig:{esp:[['SIG',34]],uno:[['SIG','A0']]},sim:{n:'Knob',u:'%',min:0,max:100,v:40,j:1,f:function(v){return 'raw '+Math.round(v/100*ADC())+' / '+ADC()}},esp:'The ESP32 ADC reads 0 to 4095 (12 bit) and is not perfectly linear near the ends. Use ADC1 pins (32 to 39) when Wi-Fi is on.',code:'const int POT = {S0};\nvoid setup() { Serial.begin(115200); }\nvoid loop() {\n  int raw = analogRead(POT);\n  Serial.println(raw);   // 0..{ADC}\n  delay(200);\n}'},
+{id:'ldr',c:'Analog',n:'Light sensor (LDR)',d:'A resistor that conducts more as light grows. Build it into a voltage divider with a 10k resistor.',sig:{esp:[['SIG',35]],uno:[['SIG','A1']]},sim:{n:'Light',u:'%',min:0,max:100,v:55,j:2,f:function(v){return 'raw '+Math.round(v/100*ADC())}},tip:'Add hysteresis (two thresholds) for automatic lamps so they do not flicker at dusk.',code:'const int LDR = {S0};\nvoid setup() { Serial.begin(115200); }\nvoid loop() {\n  int light = analogRead(LDR);\n  Serial.println(light < 800 ? "dark" : "bright");\n  delay(300);\n}'},
+{id:'dht',c:'Climate',n:'DHT22 temperature and humidity',d:'A digital sensor that reports both temperature and relative humidity over a single wire.',sig:{esp:[['DATA',15]],uno:[['DATA',7]]},sim:{n:'Temperature',u:'°C',min:0,max:50,v:26,j:.2,f:function(v){return 'Temp: '+v.toFixed(1)+' C  Hum: '+(75-v*.6).toFixed(0)+' %'}},esp:'Needs a 10k pull-up from DATA to 3V3. Read it at most once every 2 seconds.',code:'#include <DHT.h>\nDHT dht({S0}, DHT22);\nvoid setup() { Serial.begin(115200); dht.begin(); }\nvoid loop() {\n  Serial.print(dht.readTemperature()); Serial.print(" C  ");\n  Serial.print(dht.readHumidity());    Serial.println(" %");\n  delay(2000);\n}'},
+{id:'sr04',c:'Distance',n:'HC-SR04 ultrasonic',d:'Sends a burst of ultrasound and times the echo to measure distance from 2 cm to 4 m.',vcc:{esp:'VIN (5V)',uno:'5V'},sig:{esp:[['TRIG',5],['ECHO',18]],uno:[['TRIG',9],['ECHO',10]]},sim:{n:'Distance',u:'cm',min:2,max:400,v:80,j:1,f:function(v){return 'Distance: '+v.toFixed(0)+' cm'}},esp:'ECHO outputs 5 V. Use a 1k and 2k divider before the ESP32 pin, which is only 3.3 V tolerant.',code:'const int TRIG = {S0}, ECHO = {S1};\nvoid setup() { Serial.begin(115200); pinMode(TRIG, OUTPUT); pinMode(ECHO, INPUT); }\nvoid loop() {\n  digitalWrite(TRIG, HIGH); delayMicroseconds(10); digitalWrite(TRIG, LOW);\n  long us = pulseIn(ECHO, HIGH, 30000);\n  Serial.println(us * 0.0343 / 2);   // cm\n  delay(200);\n}'},
+{id:'pir',c:'Motion',n:'PIR motion sensor',d:'Detects the infrared heat of moving people and animals. Great for alarms and lights.',vcc:{esp:'VIN (5V)',uno:'5V'},sig:{esp:[['OUT',27]],uno:[['OUT',3]]},sim:{n:'Motion',u:'',min:0,max:1,v:0,f:function(v){return v?'MOTION detected':'idle'}},tip:'Give the sensor about 30 seconds to warm up after power on.',code:'const int PIR = {S0};\nvoid setup() { Serial.begin(115200); pinMode(PIR, INPUT); }\nvoid loop() {\n  if (digitalRead(PIR)) Serial.println("motion!");\n  delay(250);\n}'},
+{id:'bmp',c:'Climate',n:'BMP280 pressure (I²C)',d:'Measures air pressure and altitude over the I²C bus, using just two data wires.',sig:{esp:[['SDA',21],['SCL',22]],uno:[['SDA','A4'],['SCL','A5']]},sim:{n:'Pressure',u:'hPa',min:950,max:1050,v:1013,j:.3,f:function(v){return 'P: '+v.toFixed(1)+' hPa  Alt: '+((1013.25-v)*8.3).toFixed(0)+' m'}},tip:'I²C devices share the bus. Run an I²C scanner sketch first to find the address (0x76 or 0x77).',code:'#include <Adafruit_BMP280.h>\nAdafruit_BMP280 bmp;\nvoid setup() { Serial.begin(115200); bmp.begin(0x76); }\nvoid loop() {\n  Serial.println(bmp.readPressure() / 100.0);   // hPa\n  delay(1000);\n}'},
+{id:'mpu',c:'Motion',n:'MPU6050 tilt (I²C)',d:'An accelerometer and gyroscope in one chip. Use it for tilt, shake and balance projects.',sig:{esp:[['SDA',21],['SCL',22]],uno:[['SDA','A4'],['SCL','A5']]},sim:{n:'Tilt',u:'°',min:-90,max:90,v:15,j:.5,f:function(v){return 'Tilt: '+v.toFixed(0)+' deg'}},tip:'Calibrate by averaging 200 samples while the board lies flat, then subtract the offset.',code:'#include <Adafruit_MPU6050.h>\nAdafruit_MPU6050 mpu;\nvoid setup() { Serial.begin(115200); mpu.begin(); }\nvoid loop() {\n  sensors_event_t a, g, t;\n  mpu.getEvent(&a, &g, &t);\n  Serial.println(a.acceleration.x);\n  delay(100);\n}'},
+{id:'servo',c:'Output',n:'Servo motor',d:'A motor that moves to an exact angle. Perfect for robot arms, gates and dials.',vcc:{esp:'VIN (5V)',uno:'5V'},sig:{esp:[['PWM',13]],uno:[['PWM',9]]},sim:{n:'Angle',u:'°',min:0,max:180,v:90,f:function(v){return 'write('+v.toFixed(0)+')'}},esp:'Install the ESP32Servo library instead of Servo. Power the servo from 5 V, never from a GPIO.',code:'#include <{SERVOLIB}>\nServo s;\nvoid setup() { s.attach({S0}); }\nvoid loop() {\n  for (int a = 0; a <= 180; a += 5) { s.write(a); delay(20); }\n  for (int a = 180; a >= 0; a -= 5) { s.write(a); delay(20); }\n}'},
+{id:'neo',c:'Output',n:'WS2812 NeoPixel strip',d:'Addressable RGB LEDs. One data wire controls every pixel in the strip.',vcc:{esp:'VIN (5V)',uno:'5V'},sig:{esp:[['DIN',16]],uno:[['DIN',6]]},sim:{n:'Hue',u:'°',min:0,max:360,v:200,f:function(v){return 'hue '+v.toFixed(0)}},tip:'Add a 330 ohm resistor on DIN and a 1000 µF capacitor across the strip power.',code:'#include <Adafruit_NeoPixel.h>\nAdafruit_NeoPixel strip(8, {S0}, NEO_GRB + NEO_KHZ800);\nvoid setup() { strip.begin(); strip.setBrightness(60); }\nvoid loop() {\n  for (long h = 0; h < 65536; h += 256) {\n    strip.fill(strip.gamma32(strip.ColorHSV(h)));\n    strip.show(); delay(10);\n  }\n}'},
+{id:'soil',c:'Climate',n:'Soil moisture',d:'A capacitive probe that reports how wet the soil is. The core of a smart plant pot.',sig:{esp:[['AOUT',32]],uno:[['AOUT','A2']]},sim:{n:'Moisture',u:'%',min:0,max:100,v:45,j:.5,f:function(v){return 'Soil: '+v.toFixed(0)+'%  '+(v<30?'thirsty':v<70?'happy':'soaked')}},tip:'Use a capacitive probe, not a resistive one. Resistive probes corrode within weeks.',code:'const int SOIL = {S0};\nvoid setup() { Serial.begin(115200); }\nvoid loop() {\n  int raw = analogRead(SOIL);\n  int pct = map(raw, 3000, 1300, 0, 100);   // calibrate dry/wet\n  Serial.println(constrain(pct, 0, 100));\n  delay(1000);\n}'},
+{id:'touch',c:'ESP32 only',n:'Capacitive touch pin',d:'The ESP32 can sense a finger on a bare wire or foil, so you can build buttons with no switch.',only:1,sig:{esp:[['TOUCH',4]],uno:[]},sim:{n:'Touch value',u:'',min:0,max:80,v:70,j:1,f:function(v){return 'touch '+v.toFixed(0)+(v<40?' (touched)':'')}},tip:'The reading drops when touched. Pick a threshold halfway between touched and untouched.',code:'void setup() { Serial.begin(115200); }\nvoid loop() {\n  int t = touchRead({S0});\n  Serial.println(t < 40 ? "touched" : "free");\n  delay(150);\n}'},
+{id:'wifi',c:'ESP32 only',n:'Wi-Fi signal strength',d:'Connect to your router and read the RSSI to see how strong your signal is.',only:1,sig:{esp:[['(built in)','Wi-Fi']],uno:[]},sim:{n:'RSSI',u:'dBm',min:-90,max:-30,v:-60,j:1,f:function(v){return 'RSSI '+v.toFixed(0)+' dBm  '+(v>-55?'great':v>-70?'ok':'weak')}},tip:'Above -60 dBm is solid. Below -80 dBm expect dropped connections.',code:'#include <WiFi.h>\nvoid setup() {\n  Serial.begin(115200);\n  WiFi.begin("YOUR_SSID", "YOUR_PASSWORD");\n  while (WiFi.status() != WL_CONNECTED) delay(300);\n}\nvoid loop() {\n  Serial.println(WiFi.RSSI());\n  delay(1000);\n}'}
+];
+var B='esp',cur=0,timer=null,val=0,run=false,done={};
+function ADC(){return B==='esp'?4095:1023}
+try{done=JSON.parse(localStorage.getItem('cl-done')||'{}')}catch(e){done={}}
+function save(){try{localStorage.setItem('cl-done',JSON.stringify(done))}catch(e){}}
+function $(i){return document.getElementById(i)}
+function ok(s){return !(s.only&&B==='uno')}
+function list(){
+  var q=$('q').value.toLowerCase(),cats={},h='';
+  S.forEach(function(s,i){if(s.n.toLowerCase().indexOf(q)<0)return;(cats[s.c]=cats[s.c]||[]).push(i)});
+  Object.keys(cats).forEach(function(c){
+    h+='<div class="cat">'+c+'</div><ul>';
+    cats[c].forEach(function(i){var s=S[i];h+='<li><button data-i="'+i+'"'+(i===cur?' aria-current="true"':'')+(ok(s)?'':' class="off"')+'><span>'+s.n+'</span>'+(done[s.id]?'<span class="d">✓</span>':'')+'</button></li>'});
+    h+='</ul>';
+  });
+  $('list').innerHTML=h||'<p class="lbl">No sensor matches. Try another word.</p>';
+  $('prog').textContent=Object.keys(done).length+' of '+S.length+' done';
+}
+function wiring(s){
+  var sig=s.sig[B]||[],vcc=(s.vcc&&s.vcc[B])||(B==='esp'?'3V3':'5V');
+  var rows=sig.map(function(p,i){return [p[0],String(p[1]),i?'#2f9e8f':'#e0902a']}).concat([['VCC',vcc,'#d33f3f'],['GND','GND','var(--mute)']]);
+  var H=70+rows.length*38,sv=(val-s.sim.min)/(s.sim.max-s.sim.min),o='<svg viewBox="0 0 520 '+H+'" role="img" aria-label="Wiring diagram for '+s.n+'">';
+  o+='<rect x="10" y="10" width="150" height="'+(H-20)+'" rx="10" fill="var(--bg)" stroke="var(--acc)" stroke-width="3"/><text x="85" y="34" text-anchor="middle" style="font-weight:500">'+(B==='esp'?'ESP32 DevKit':'Arduino Uno')+'</text>';
+  o+='<rect x="360" y="10" width="150" height="'+(H-20)+'" rx="10" fill="var(--bg)" stroke="var(--ink)" stroke-width="3"/><text x="435" y="34" text-anchor="middle">'+s.n.split(' ')[0]+'</text>';
+  rows.forEach(function(r,i){var y=66+i*38,w=i<sig.length?2+sv*6:3;
+    o+='<path d="M160 '+y+' C 250 '+y+' 270 '+y+' 360 '+y+'" fill="none" stroke="'+r[2]+'" stroke-width="'+w.toFixed(1)+'" stroke-linecap="round"/>';
+    o+='<circle cx="160" cy="'+y+'" r="5" fill="'+r[2]+'"/><circle cx="360" cy="'+y+'" r="5" fill="'+r[2]+'"/>';
+    o+='<text x="24" y="'+(y+4)+'">'+r[1]+'</text><text x="376" y="'+(y+4)+'">'+r[0]+'</text>';
+  });
+  return o+'</svg>';
+}
+function code(s){
+  var sig=s.sig[B]||[];
+  return s.code.replace(/\{S(\d)\}/g,function(m,i){return sig[i]?sig[i][1]:'?'}).replace(/\{ADC\}/g,ADC()).replace('{SERVOLIB}',B==='esp'?'ESP32Servo.h':'Servo.h');
+}
+function readout(){
+  var s=S[cur],m=s.sim;
+  $('big').innerHTML=(m.max===1&&m.min===0?(val?'ON':'OFF'):(+val).toFixed(m.max-m.min<10?1:0))+'<span>'+m.u+'</span>';
+  $('fill').style.width=((val-m.min)/(m.max-m.min)*100)+'%';
+}
+function tick(){
+  var s=S[cur],m=s.sim,v=+val+(m.j?(Math.random()-.5)*m.j*2:0),t=$('mon');
+  t.textContent+=m.f(v)+'\n';var l=t.textContent.split('\n');if(l.length>10)t.textContent=l.slice(-10).join('\n');t.scrollTop=1e5;
+}
+function stop(){run=false;clearInterval(timer);timer=null}
+function show(i){
+  stop();cur=i;var s=S[i],m=s.sim,na=!ok(s);val=m.v;
+  var note=(B==='esp'&&s.esp)?s.esp:(s.tip||'');
+  var h='<section class="panel top"><h2>'+s.n+'</h2><div>'+s.d+'</div><div class="tags"><span class="tag">'+s.c+'</span><span class="tag">'+(B==='esp'?'3.3 V logic':'5 V logic')+'</span></div>'+(note?'<div class="warn">'+note+'</div>':'')+'</section>';
+  if(na){h+='<section class="panel"><h2>ESP32 only</h2><div>This lesson uses a feature the Arduino Uno does not have. Switch the board to ESP32 to see the wiring and code.</div></section>';}
+  else{
+    h+='<section class="panel"><h2>Wiring</h2><div class="lbl">The signal wire gets thicker as the reading grows.</div>'+wiring(s)+'</section>';
+    h+='<section class="panel"><h2>Try it</h2><div class="live"><div><div class="big" id="big"></div><div class="bar"><i id="fill"></i></div><label class="lbl" for="sl">'+m.n+'</label><input id="sl" type="range" min="'+m.min+'" max="'+m.max+'" step="'+(m.max-m.min<10?1:(m.max-m.min>200?1:.5))+'" value="'+val+'"><div class="row"><button class="btn p" id="run">Run</button><button class="btn" id="clr">Clear</button></div></div><pre class="mon" id="mon" aria-live="off" aria-label="Serial monitor">Press Run to start the serial monitor.</pre></div></section>';
+    h+='<section class="panel"><h2>Code for '+(B==='esp'?'ESP32':'Uno')+'</h2><pre class="code" id="code"></pre><div class="row"><button class="btn" id="cp">Copy code</button></div></section>';
+  }
+  h+='<div class="row"><button class="btn" id="pv">Previous</button>'+(na?'':'<button class="btn p" id="dn">'+(done[s.id]?'Mark as not done':'Mark as done')+'</button>')+'<button class="btn" id="nx">Next</button></div>';
+  $('main').innerHTML=h;
+  if(!na){
+    $('code').textContent=code(s);readout();
+    $('sl').oninput=function(){val=+this.value;readout();$('main').querySelector('svg').outerHTML=wiring(s)};
+    $('run').onclick=function(){if(run){stop();this.textContent='Run'}else{run=true;$('mon').textContent='';tick();timer=setInterval(tick,700);this.textContent='Stop'}};
+    $('clr').onclick=function(){$('mon').textContent=''};
+    $('cp').onclick=function(){var b=this;try{navigator.clipboard.writeText(code(s)).then(function(){b.textContent='Copied'},function(){b.textContent='Select and copy manually'})}catch(e){b.textContent='Select and copy manually'}};
+    $('dn').onclick=function(){if(done[s.id])delete done[s.id];else done[s.id]=1;save();show(cur);list()};
+  }
+  $('pv').onclick=function(){show((cur+S.length-1)%S.length)};
+  $('nx').onclick=function(){show((cur+1)%S.length)};
+  list();
+  try{history.replaceState(null,'','#'+s.id)}catch(e){}
+}
+function board(b){B=b;document.body.setAttribute('data-b',b);$('be').setAttribute('aria-pressed',b==='esp');$('bu').setAttribute('aria-pressed',b==='uno');show(cur)}
+$('be').onclick=function(){board('esp')};
+$('bu').onclick=function(){board('uno')};
+$('q').oninput=list;
+$('list').onclick=function(e){var b=e.target.closest('button[data-i]');if(b)show(+b.dataset.i)};
+var hs=S.map(function(s){return s.id}).indexOf(location.hash.slice(1));
+show(hs>=0?hs:0);
+</script>
+</body>
+</html>
